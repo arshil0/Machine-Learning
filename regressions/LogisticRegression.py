@@ -28,14 +28,25 @@ def gradientDescent(x, y, theta = np.array([]), alpha = 0.0001, iterations = 100
 
     
     for iter in range(iterations):
+        #the list of predicted values, before using the sigmoid function
         z = theta * x
+        
+        #create an array of predicted y values, to prepare for the next step
         predY = []
+        
+        #run the values of z through the sigmoid function to get the predicted values
         for value in z:
             predY.append(sigmoid(sum(value)))
+        
+        #prepare an array of derivatives for each theta parameter
         derivatives = []
+
+        #iterate for each theta parameter (in my given example it's 2 theta parameters)
         for i in range(independantVariables):
             #this is the formula of the derivate of each theta
             derivatives.append(-2/m * sum(x[:,i] * (np.array(y) - np.array(predY))))
+        
+        #update the theta values
         theta = theta - alpha * np.array(derivatives)
     
     
@@ -85,5 +96,7 @@ x = [[0.50],
      [5.50]]
 y = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 
+
+#run gradient descent on my given example (on wikipedia theta0 = -4.1, theta1 = 1.5, these are approximate values of course!)
 print(gradientDescent(x, y, alpha=0.01, iterations=10000))
 
