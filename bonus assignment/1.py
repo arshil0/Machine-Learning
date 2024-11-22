@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC #Imported SVC as I need a classifier model
 from sklearn.metrics import classification_report, accuracy_score
 import matplotlib.pyplot as plt
+import copy
 
 #used to draw the decision bounary
 from sklearn.inspection import DecisionBoundaryDisplay
@@ -46,21 +47,33 @@ for i in range(n):
         else:
             y.append(1)
 
+polynomial_lr_degree = 2
+lr_x = copy.deepcopy(x)
+
+degree = 2
+while degree <= polynomial_lr_degree:
+  for index, v in enumerate(x):
+    lr_x[index].append(v[0] ** degree)
+    lr_x[index].append(v[1] ** degree)
+  degree += 1
+
 
 #split the data into 80% train and 20% test set
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
 
+lr_x_train, lr_x_test, lr_y_train, lr_y_test = train_test_split(lr_x, y, test_size=0.2)
+
 #train a model that uses logistic regression
 logistic_regression = LogisticRegression()
-logistic_regression.fit(x_train, y_train)
+logistic_regression.fit(lr_x_train, lr_y_train)
 
 #predict values for test set
-y_pred_LR = logistic_regression.predict(x_test)
+y_pred_LR = logistic_regression.predict(lr_x_test)
 
 print("Logistic Regression performance:")
 print(classification_report(y_test, y_pred_LR))
 
-print(logistic_regression.coef_)
+print("\n")
 
 #NOW ONTO SVM
 
@@ -74,7 +87,7 @@ y_pred_soft_SVM = soft_margin_svm.predict(x_test)
 print("Soft margin SVM performance:")
 print(classification_report(y_test, y_pred_soft_SVM))
 
-
+print("\n")
 
 #Hard margin SVM
 hard_margin_svm = SVC(C=100, kernel="rbf")
@@ -86,7 +99,7 @@ y_pred_hard_SVM = hard_margin_svm.predict(x_test)
 print("Hard margin SVM performance:")
 print(classification_report(y_test, y_pred_hard_SVM))
 
-
+print("\n")
 
 #create a dictinary to plot it later
 plot_var = {}
@@ -124,7 +137,7 @@ lr_intercept = logistic_regression.intercept_
 #set up the x-axis from min to max
 x_vals = np.linspace(np.array(([i[0] for i in x])).min(), np.array(([i[0] for i in x])).max(), 100)
 #plot the y values for each x to get the line
-y_vals = -(lr_intercept + lr_coef[0] * x_vals) / lr_coef[1]
+y_vals = -(lr_intercept + sum(lr_coef[i * 2] * x_vals ** (i + 1) for i in range(polynomial_lr_degree))) / (sum(lr_coef[(i * 2) + 1] ** (i + 1) for i in range(polynomial_lr_degree)))
 
 sub_plt[0].plot(x_vals, y_vals, 'k--', c="r", label='Decision Boundary')
 
